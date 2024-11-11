@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
+    
+    #ui {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 15px;
+      border-radius: 10px;
+      min-width: 200px;
+    }
+
+    .timer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 32px;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 10px;
+      border: 2px solid #555;
+    }
+
+    .timer.warning {
+      color: #ff4444;
+      animation: pulse 1s infinite;
+    }
+
+    #order-panel {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 200px;
+    }
+
+    #challenge-panel {
+      position: fixed;
+      left: 20px;
+      top: 200px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 200px;
+    }
+
+    #combo-display {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      color: #ffcc00;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 15px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: #f0f0f0;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #recipe-book {
+      position: fixed;
+      left: 20px;
+      bottom: 100px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      width: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    #notifications {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: white;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .notification {
+      animation: fadeOut 2s forwards;
+    }
+
+    #gameOver {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      display: none;
+    }
+
+    #gameOver h2 {
+      color: #ffcc00;
+      margin-top: 0;
+    }
+
+    .stat {
+      margin: 10px 0;
+      padding: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .power-up {
+      position: absolute;
+      animation: float 2s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <div>Score: <span id="score">0</span></div>
+    <div>Heat: <span id="heat">50</span>°</div>
+    <div>Level: <span id="level">1</span></div>
+  </div>
+
+  <div id="timer" class="timer">3:00</div>
+
+  <div id="order-panel">
+    <h3>Current Order</h3>
+    <div id="current-order">Waiting for orders...</div>
+    <div id="order-timer"></div>
+  </div>
+
+  <div id="challenge-panel">
+    <h3>Active Challenges</h3>
+    <div id="active-challenges"></div>
+  </div>
+
+  <div id="recipe-book">
+    <h3>Recipe Book</h3>
+    <div id="recipes"></div>
+  </div>
+
+  <div id="combo-display"></div>
+  <div id="notifications"></div>
+
+  <div class="controls">
+    <button onclick="addIngredient('rice')">🍚 Rice</button>
+    <button onclick="addIngredient('egg')">🥚 Egg</button>
+    <button onclick="addIngredient('carrot')">🥕 Carrot</button>
+    <button onclick="addIngredient('shrimp')">🦐 Shrimp</button>
+    <button onclick="addIngredient('peas')">🟢 Peas</button>
+    <button onclick="addIngredient('onion')">🧅 Onion</button>
+    <button onclick="addIngredient('sauce')">🥫 Sauce</button>
+    <button onclick="stir()">🥄 Stir</button>
+    <button onclick="adjustHeat(10)">🔥 Heat Up</button>
+    <button onclick="adjustHeat(-10)">❄️ Cool Down</button>
+    <button onclick="serve()" style="background: #ffecec">✨ Serve!</button>
+  </div>
+
+  <div id="gameOver">
+    <h2>Game Over!</h2>
+    <div class="stat">Final Score: <span id="finalScore">0</span></div>
+    <div class="stat">Dishes Served: <span id="dishesServed">0</span></div>
+    <div class="stat">Perfect Dishes: <span id="perfectDishes">0</span></div>
+    <div class="stat">Highest Combo: <span id="highestCombo">0</span></div>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
